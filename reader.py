@@ -31,7 +31,7 @@ if __name__ == "__main__":
 
     (options, args) = parser.parse_args()
 
-    print("Trying to parse {}".format(options.filename))
+    print("Trying to parse {0}".format(options.filename))
 
     p = Parser()
     links_unknown = p.parse_from_file(options.filename)
@@ -57,10 +57,10 @@ if __name__ == "__main__":
     for api_url in servers:
         print('\nSaving data')
         for node in sorted(to_update[api_url], key=attrgetter('hostname')):
-            logg('\t* {}...\t'.format(node.hostname), options.verbose, True)
+            logg('\t* {0}...\t'.format(node.hostname), options.verbose, True)
             msg = 'Success' if api_update_node(api_url, node) else 'Error'
             logg(msg, options.verbose)
 
-        print('\n{}'.format(api_url))
-        print('\tNodes: {}'.format(len(p.get_nodes())))
-        print('\tUpdated: {}'.format(len(to_update[api_url])))
+        print('\n{0}'.format(api_url))
+        print('\tNodes: {0}'.format(len(p.get_nodes())))
+        print('\tUpdated: {0}'.format(len(to_update[api_url])))

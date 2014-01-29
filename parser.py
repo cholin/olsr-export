@@ -108,10 +108,11 @@ class Parser:
             except ValueError:
                 pass
 
+        print(tag)
         raise ValueError
 
     def lex_line_raw(self, tag_id, line):
-        delimiter = ('{}('.format(tag_id), ');')
+        delimiter = ('{0}('.format(tag_id), ');')
         if not line.startswith(delimiter[0]) or not line.endswith(delimiter[1]):
             raise ValueError
 

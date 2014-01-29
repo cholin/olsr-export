@@ -5,7 +5,7 @@ import re
 
 class Node:
     def __init__(self, name, latlon):
-        _id = name if name.endswith('.olsr') else '{}.olsr'.format(name)
+        _id = name if name.endswith('.olsr') else '{0}.olsr'.format(name)
         self._id = re.sub(r'^_+', '', _id)
         self.hostname = name
         self.latlon = latlon
@@ -32,7 +32,7 @@ class Node:
         }
 
     def __repr__(self):
-        return 'Node({})'.format(self.hostname)
+        return 'Node({0})'.format(self.hostname)
 
 
 class Link:
