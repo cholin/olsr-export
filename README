@@ -50,3 +50,6 @@ You may need credentials for couchapp
           "openwifimap":{"db":"http://admin:admin@localhost:5984/openwifimap"}
    }
   }
+
+
+Licensed under GPLv3
