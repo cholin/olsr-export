@@ -8,7 +8,7 @@ from utils import api_get_node, api_update_node
 
 OLSRD_LAT_LON_FILE = '/var/run/latlon.js'
 API_URLS = ['http://localhost:5984/openwifimap/_design/owm-api/_rewrite', 'http://api.openwifimap.net/']
-VALID_SCRIPTS = ('freifunk-map-proxy', 'freifunk-heartbeat-proxy', 'freifunk-olsrd', 'luci-app-owm')
+SKIP_SCRIPTS = ('luci-app-owm')
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
@@ -29,9 +29,11 @@ if __name__ == "__main__":
             data = api_get_node(api_url, node._id)
 
             if data is not None:
-                if 'script' in data and data['script'] not in VALID_SCRIPTS:
+                if 'script' in data and data['script'] in SKIP_SCRIPTS:
                     print('*'),
                     continue
+                else:
+                    node.script = data['script']
 
             print('.'),
             to_update[api_url].append(node)

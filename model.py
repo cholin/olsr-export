@@ -11,6 +11,7 @@ class Node:
         self.latlon = latlon
         self.links = []
         self.ips = []
+        self.script = 'freifunk-olsrd'
 
     def add_ip(self, ip):
         self.ips.append(ip)
@@ -26,7 +27,7 @@ class Node:
             'hostname' : self.hostname,
             'longitude' : float(lon),
             'latitude' : float(lat),
-            'script' : 'freifunk-olsrd',
+            'script' : self.script,
             'links' : [ l.as_dict() for l in self.links]
         }
 
