@@ -5,24 +5,40 @@ import sys
 from parser import Parser
 from operator import attrgetter
 from utils import api_get_node, api_update_node
+from optparse import OptionParser
 
-OLSRD_LAT_LON_FILE = '/var/run/latlon.js'
-API_URLS = ['http://localhost:5984/openwifimap/_design/owm-api/_rewrite', 'http://api.openwifimap.net/']
 SKIP_SCRIPTS = ('luci-app-owm')
 
-if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        lat_lon_file = sys.argv[1]
-    else:
-        lat_lon_file = OLSRD_LAT_LON_FILE
+def logg(msg, verbose, joined=False):
+    if verbose:
+        if joined:
+            sys.stdout.write(msg)
+        else:
+            print(msg)
 
-    print("Trying to parse {}".format(lat_lon_file))
+if __name__ == "__main__":
+    parser = OptionParser()
+    parser.add_option("-f", "--file", dest="filename",
+                      default='/var/run/latlon.js',
+                      help="use different latlon.js file than\
+                      /var/run/latlon.js", metavar="LATLON_FILE")
+    parser.add_option("-q", "--quiet",
+                      action="store_false", dest="verbose", default=True,
+                      help="don't print verbose status messages to stdout")
+    parser.add_option("-s", "--servers",
+                      dest="servers", default='http://api.openwifimap.net',
+                      help="api servers to push the data (separated by comma)")
+
+    (options, args) = parser.parse_args()
+
+    print("Trying to parse {}".format(options.filename))
 
     p = Parser()
-    links_unknown = p.parse_from_file(lat_lon_file)
+    links_unknown = p.parse_from_file(options.filename)
     nodes = p.get_nodes()
     to_update = {}
-    for api_url in API_URLS:
+    servers = options.servers.split(' ')
+    for api_url in servers:
         to_update[api_url] = []
         print('\nFetching data')
         for hostname, node in nodes.items():
@@ -30,20 +46,21 @@ if __name__ == "__main__":
 
             if data is not None:
                 if 'script' in data and data['script'] in SKIP_SCRIPTS:
-                    print('*'),
+                    logg('*', options.verbose, True)
                     continue
                 else:
                     node.script = data['script']
 
-            print('.'),
+            logg('.', options.verbose, True)
             to_update[api_url].append(node)
 
-    for api_url in API_URLS:
+    for api_url in servers:
         print('\nSaving data')
         for node in sorted(to_update[api_url], key=attrgetter('hostname')):
-            print('\t* {}...\t'.format(node.hostname)),
-            print('Success' if api_update_node(api_url, node) else 'Error')
+            logg('\t* {}...\t'.format(node.hostname), options.verbose, True)
+            msg = 'Success' if api_update_node(api_url, node) else 'Error'
+            logg(msg, options.verbose)
 
-
-    stat_nodes = (len(p.get_nodes()), len(p.get_nodes()) - len(to_update))
-
+        print('\n{}'.format(api_url))
+        print('\tNodes: {}'.format(len(p.get_nodes())))
+        print('\tUpdated: {}'.format(len(to_update[api_url])))
