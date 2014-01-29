@@ -25,8 +25,11 @@ if __name__ == "__main__":
     parser.add_option("-q", "--quiet",
                       action="store_false", dest="verbose", default=True,
                       help="don't print verbose status messages to stdout")
-    parser.add_option("-s", "--servers",
-                      dest="servers", default='http://api.openwifimap.net',
+    parser.add_option("-s", "--skip",
+                      action="store_true", dest="skip_self", default=True,
+                      help="skip links to this node (Self-Entries)")
+    parser.add_option("-a", "--apis",
+                      dest="apis", default='http://api.openwifimap.net',
                       help="api servers to push the data (separated by comma)")
 
     (options, args) = parser.parse_args()
@@ -34,11 +37,11 @@ if __name__ == "__main__":
     print("Trying to parse {0}".format(options.filename))
 
     p = Parser()
-    links_unknown = p.parse_from_file(options.filename)
+    links_unknown = p.parse_from_file(options.filename, True)
     nodes = p.get_nodes()
     to_update = {}
-    servers = options.servers.split(' ')
-    for api_url in servers:
+    apis = options.apis.split(' ')
+    for api_url in apis:
         to_update[api_url] = []
         print('\nFetching data')
         for hostname, node in nodes.items():
@@ -54,7 +57,7 @@ if __name__ == "__main__":
             logg('.', options.verbose, True)
             to_update[api_url].append(node)
 
-    for api_url in servers:
+    for api_url in apis:
         print('\nSaving data')
         for node in sorted(to_update[api_url], key=attrgetter('hostname')):
             logg('\t* {0}...\t'.format(node.hostname), options.verbose, True)

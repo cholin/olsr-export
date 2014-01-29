@@ -54,15 +54,19 @@ class Parser:
     def parse(self, lines):
         self.lex_lines(lines.splitlines())
 
-    def parse_from_file(self, filename):
+    def parse_from_file(self, filename, skip_self = False):
         entries = []
         with open(filename, 'r') as f:
             lines = f.read().splitlines()
             entries = self.lex_lines(lines)
-        self._parse(entries)
+        self._parse(entries, skip_self)
 
-    def _parse(self, entries):
-        for node in entries['Node'] + entries['Self']:
+    def _parse(self, entries, skip_self):
+        nodes = entries['Node']
+        if not skip_self:
+            nodes += entries['Self']
+
+        for node in nodes:
             n = Node(node.hostname, node.latlon)
             n.add_ip(node.ip)
             self._nodes[node.hostname] = n
@@ -81,6 +85,11 @@ class Parser:
         links_unknown = []
         for link in links:
             try:
+                if skip_self:
+                    link_ips = [link.src_ip, link.dst_ip]
+                    if any(s.ip in link_ips  for s in entries['Self']):
+                        continue
+
                 node = self._ips[link.src_ip]
                 l = Link(self._ips[link.dst_ip], link.lq)
                 node.add_link(l)
