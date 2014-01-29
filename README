@@ -1,0 +1,52 @@
+OLSRD-MAP-READER
+================
+
+With this scripts you can push your live mesh topology to an openwifimap
+instance (for example: http://www.openwifimap.net).
+
+Installation
+------------
+
+  $ git clone git@github.com:cholin/olsr-map-reader.git
+  $ cd olsr-map-reader
+  $ olsrd
+  $ python2 reader.py
+Trying to parse /var/run/latlon.js
+
+Fetching data
+  . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
+Saving data
+  * rhxb-warte...	Success
+  * scandic-berlin...	Success
+  * segen-no-2...	Success
+  * segen-no-5...	Success
+  * segen-nw-2...	Success
+  * segen-nw-5...	Success
+  * segen-router...	Success
+  * segen-so-2...	Success
+  * segen-so-5...	Success
+  * segen-sw-2...	Success
+  * segen-sw-5...	Success
+  * segen-top-sw...	Success
+  * seltsamuel...	Success
+  (...)
+
+To get access to the mesh you can use http://bbb-vpn.berlin.freifunk.net
+
+If you want to use your own openwifimap server try this:
+
+  $ apt-get install couchdb
+  $ couchdb
+  $ git clone git@github.com:freifunk/openwifimap-api.git
+  $ cd openwifimap-api
+  $ couchapp push openwifimap
+  $ curl -v -H "Content-Type: application/json" -X POST http://127.0.0.1:5984/_replicate -d '{"source":"http://api.openwifimap.net/db","target":"openwifimap"}' -u admin:admin
+
+You may need credentials for couchapp
+
+.couchapprc
+  {
+  "env":{
+          "openwifimap":{"db":"http://admin:admin@localhost:5984/openwifimap"}
+   }
+  }
