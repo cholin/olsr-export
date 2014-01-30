@@ -7,10 +7,10 @@ instance (for example: http://www.openwifimap.net).
 Installation
 ------------
 
+  $ olsrd
   $ git clone git@github.com:cholin/olsr-map-reader.git
   $ cd olsr-map-reader
-  $ olsrd
-  $ python2 reader.py
+  $ python2 olsr-export
 Trying to parse /var/run/latlon.js
 
 Fetching data
