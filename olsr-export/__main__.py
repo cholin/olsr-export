@@ -3,10 +3,12 @@
 
 import sys
 from parser import Parser
+from datetime import datetime, timedelta
 from operator import attrgetter
 from utils import api_get_node, api_update_node
 from optparse import OptionParser
 
+DATE_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 SKIP_SCRIPTS = ('luci-app-owm')
 
 def logg(msg, verbose, joined=False):
@@ -37,7 +39,7 @@ if __name__ == "__main__":
     print("Trying to parse {0}".format(options.filename))
 
     p = Parser()
-    links_unknown = p.parse_from_file(options.filename, True)
+    links_unknown = p.parse_from_file(options.filename, options.skip_self)
     nodes = p.get_nodes()
     to_update = {}
     apis = options.apis.split(' ')
@@ -49,10 +51,13 @@ if __name__ == "__main__":
 
             if data is not None:
                 if 'script' in data and data['script'] in SKIP_SCRIPTS:
-                    logg('*', options.verbose, True)
-                    continue
-                else:
-                    node.script = data['script']
+                    if 'mtime' in data:
+                        date = datetime.strptime(data['mtime'], DATE_FORMAT)
+                        now = datetime.now()
+                        if (now - date) <= timedelta(days=7):
+                            logg('*', options.verbose, True)
+                            continue
+                node.script = data['script']
 
             logg('.', options.verbose, True)
             to_update[api_url].append(node)
