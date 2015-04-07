@@ -57,7 +57,7 @@ if __name__ == "__main__":
                         if (now - date) <= timedelta(days=7):
                             logg('*', options.verbose, True)
                             continue
-                node.script = data['script']
+                    node.script = data['script']
 
             logg('.', options.verbose, True)
             to_update[api_url].append(node)
